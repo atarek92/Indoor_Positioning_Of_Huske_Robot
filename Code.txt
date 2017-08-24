@@ -1,0 +1,91 @@
+% Calculating distance between huske and each node
+  % Calculating distance between huske and each node
+d=10.^((-35-RSS)./(35))
+
+A1 = d(1:20,1);
+A2 = d(1:20,2);
+A3 = d(1:20,3);
+A4 = d(1:20,4);
+A5 = d(1:20,5);
+A6 = d(1:20,6);
+
+
+
+% Trilateration
+
+% Postion of Nodes 
+x1=9;
+y1=0;
+x2=0;
+y2=6;
+x3=9;
+y3=12;
+
+
+% Selecting wherther using (d1,d4,d5) or (d2,d3,d6)
+
+d1=A1;
+d2=A4;
+d3=A5;
+
+
+% Calculating Trilateration
+
+for i=1:20
+
+n1(i)=((d1(i).^2)-(d3(i).^2))-((x1^2)-(x3^2))-((y1^2)-(y3^2));
+n2(i)=((d2(i).^2)-(d3(i).^2))-((x2^2)-(x3^2))-((y2^2)-(y3^2));
+
+end
+
+
+n=[n1;n2];
+
+m=((2*[x3-x1 y3-y1; x3-x2 y3-y2])^-1)*n;
+
+
+
+% Estimated Coordinates (Output)
+
+coord=transpose(m)
+
+
+
+
+% Calculating error
+
+for i=1:20
+
+E(i)=sqrt((coord(i,1)-True(i,1))^2+(coord(i,2)-True(i,2))^2);
+
+
+end
+
+
+
+% Ploting points on map 
+
+plot(1,2,'r.','MarkerSize',20);
+Map = imread('map.png');
+imshow(Map);
+hold on
+
+
+for i=1:20
+plot(((m(1,i)*62.43)+90),((m(2,i)*62.43)+22),'m.','MarkerSize',20);
+text(((m(1,i)*62.43)+85),((m(2,i)*62.43)+35), num2str(i), 'Color', 'm')
+
+plot(((True(i,1)*62.43)+90),((True(i,2)*62.43)+22),'g.','MarkerSize',20);
+text(((True(i,1)*62.43)+85),((True(i,2)*62.43)+35), num2str(i), 'Color', 'g')
+
+
+text((((m(1,i)*62.43)+90)+((True(i,1)*62.43)+90))/2,(((m(2,i)*62.43)+22)+((True(i,2)*62.43)+22))/2, num2str(E(i)), 'Color', 'b')
+
+plot([((m(1,i)*62.43)+90) ((True(i,1)*62.43)+90)], [((m(2,i)*62.43)+22) ((True(i,2)*62.43)+22)],'LineWidth',.5)
+
+
+end
+
+legend('Estimated Location','True Location', 'Error')
+
+error_avg=mean (E)
